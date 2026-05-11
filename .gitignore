@@ -1,0 +1,26 @@
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.auto.tfvars
+secret*.tfvars
+.terraform.lock.hcl
+
+# Python
+__pycache__/
+*.py[cod]
+.env
+.venv
+env/
+venv/
+
+# Secrets
+*.pem
+*.key
+secrets.json
+
+# IDE
+.vscode/
+.idea/
+.DS_Store

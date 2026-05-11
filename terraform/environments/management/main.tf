@@ -43,3 +43,16 @@ resource "aws_organizations_organizational_unit" "security" {
   name      = "Security"
   parent_id = aws_organizations_organization.tl_org.roots[0].id
 }
+
+resource "aws_organizations_account" "dev" {
+  name      = "tl-dev"
+  email     = "silverlinkinc+tl-dev@outlook.com"
+  parent_id = aws_organizations_organizational_unit.workloads.id
+
+  role_name = "OrganizationAccountAccessRole"
+
+  tags = {
+    Environment = "dev"
+    ManagedBy   = "terraform"
+  }
+}

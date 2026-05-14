@@ -14,3 +14,23 @@ variable "environment" {
   type        = string
   default     = "management"
 }
+
+variable "hub_vpc_cidr" {
+  description = "CIDR block for the hub VPC"
+  type        = string
+}
+
+variable "hub_public_subnet_cidrs" {
+  description = "CIDR blocks for hub public subnets"
+  type        = list(string)
+}
+
+variable "hub_private_subnet_cidrs" {
+  description = "CIDR blocks for hub private subnets"
+  type        = list(string)
+}
+
+variable "availability_zones" {
+  description = "Availability zones to deploy into"
+  type        = list(string)
+}

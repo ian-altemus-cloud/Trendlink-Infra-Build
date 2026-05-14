@@ -21,6 +21,15 @@ provider "aws" {
   region = var.aws_region
 }
 
+provider "aws" {
+  alias  = "dev"
+  region = var.aws_region
+
+  assume_role {
+    role_arn = "arn:aws:iam::307217365914:role/OrganizationAccountAccessRole"
+  }
+}
+
 resource "aws_organizations_organization" "tl_org" {
   aws_service_access_principals = [
     "cloudtrail.amazonaws.com",
@@ -30,7 +39,7 @@ resource "aws_organizations_organization" "tl_org" {
   feature_set = "ALL"
 
   enabled_policy_types = [
-  "SERVICE_CONTROL_POLICY"
+    "SERVICE_CONTROL_POLICY"
   ]
 }
 
@@ -57,11 +66,12 @@ resource "aws_organizations_account" "dev" {
   }
 }
 
-provider "aws" {
-  alias = "dev"
-  region = var.aws_region
+module "hub_vpc" {
+  source = "../../modules/vpc-hub"
 
-  assume_role {
-    role_arn = "arn:aws:iam::307217365914:role/OrganizationAccountAccessRole"
-  }
+  vpc_cidr             = var.hub_vpc_cidr
+  environment          = "hub"
+  public_subnet_cidrs  = var.hub_public_subnet_cidrs
+  private_subnet_cidrs = var.hub_private_subnet_cidrs
+  availability_zones   = var.availability_zones
 }

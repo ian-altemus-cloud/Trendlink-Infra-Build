@@ -75,3 +75,53 @@ module "hub_vpc" {
   private_subnet_cidrs = var.hub_private_subnet_cidrs
   availability_zones   = var.availability_zones
 }
+
+data "terraform_remote_state" "dev" {
+  backend = "s3"
+  config = {
+    bucket = "tl-tfstate-dev-307217365914"
+    key    = "dev/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
+
+module "transit_gateway" {
+  source = "../../modules/transit-gateway"
+
+  environment    = var.environment
+  hub_vpc_id     = module.hub_vpc.vpc_id
+  hub_subnet_ids = module.hub_vpc.private_subnet_ids
+}
+
+resource "aws_ram_resource_share" "tgw" {
+  name                      = "tl-tgw-share"
+  allow_external_principals = false
+
+  tags = {
+    Name        = "tl-tgw-share"
+    Environment = var.environment
+    ManagedBy   = "terraform"
+  }
+}
+
+resource "aws_ram_resource_association" "tgw" {
+  resource_arn       = "arn:aws:ec2:us-east-1:387041334143:transit-gateway/${module.transit_gateway.transit_gateway_id}"
+  resource_share_arn = aws_ram_resource_share.tgw.arn
+}
+
+resource "aws_ram_principal_association" "dev" {
+  principal          = "307217365914"
+  resource_share_arn = aws_ram_resource_share.tgw.arn
+}
+
+resource "aws_ram_sharing_with_organization" "main" {}
+
+resource "aws_ec2_transit_gateway_vpc_attachment_accepter" "dev_spoke" {
+  transit_gateway_attachment_id = data.terraform_remote_state.dev.outputs.dev_spoke_attachment_id
+
+  tags = {
+    Name        = "tl-dev-tgw-spoke-attachment-accepter"
+    Environment = var.environment
+    ManagedBy   = "terraform"
+  }
+}

@@ -39,3 +39,8 @@ variable "allowed_ssh_cidrs" {
   description = "CIDR blocks allowed to SSH into the bastion"
   type        = list(string)
 }
+
+variable "ami_id" {
+  description = "AMI ID for EC2 instances"
+  type        = string
+}

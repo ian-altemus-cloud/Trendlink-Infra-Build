@@ -77,3 +77,18 @@ resource "aws_route" "to_tgw" {
 output "tgw_id_from_state" {
   value = data.terraform_remote_state.management.outputs.transit_gateway_id
 }
+
+module "minikube" {
+  source = "../../modules/ec2"
+
+  ami_id              = var.ami_id
+  instance_type       = "t3.large"
+  subnet_id           = module.vpc.private_subnet_ids[0]
+  security_group_ids  = [module.security_groups_dev.dev_compute_sg_id]
+  key_name            = "tl-dev-kp"
+  associate_public_ip = false
+  environment         = var.environment
+  project_name        = "tl"
+  name                = "minikube"
+  vpc_id              = module.vpc.vpc_id
+}

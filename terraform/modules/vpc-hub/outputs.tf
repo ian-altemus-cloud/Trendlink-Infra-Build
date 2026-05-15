@@ -22,3 +22,13 @@ output "internet_gateway_id" {
   description = "ID of the Internet Gateway"
   value       = aws_internet_gateway.main.id
 }
+
+output "private_route_table_id" {
+  description = "ID of the hub private route table"
+  value       = aws_route_table.private.id
+}
+
+output "public_route_table_id" {
+  description = "ID of the hub public route table"
+  value       = aws_route_table.public.id
+}

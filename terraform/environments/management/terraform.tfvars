@@ -6,3 +6,4 @@ hub_public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]
 hub_private_subnet_cidrs = ["10.0.3.0/24", "10.0.4.0/24"]
 availability_zones       = ["us-east-1a", "us-east-1b"]
 allowed_ssh_cidrs        = ["76.32.56.93/32"]
+ami_id                   = "ami-02b2c1b57c5105166"

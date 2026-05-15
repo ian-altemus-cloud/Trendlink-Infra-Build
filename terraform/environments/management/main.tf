@@ -97,8 +97,6 @@ module "transit_gateway" {
   hub_subnet_ids = module.hub_vpc.private_subnet_ids
 }
 
-resource "aws_ram_sharing_with_organization" "main" {}
-
 resource "aws_ram_resource_share" "tgw" {
   name                      = "tl-tgw-share"
   allow_external_principals = false
@@ -115,10 +113,15 @@ resource "aws_ram_resource_association" "tgw" {
   resource_arn       = module.transit_gateway.transit_gateway_arn
 }
 
+resource "aws_ram_principal_association" "dev" {
+  principal          = "307217365914"
+  resource_share_arn = aws_ram_resource_share.tgw.arn
+}
+
 resource "time_sleep" "wait_for_ram" {
   depends_on = [
     aws_ram_resource_association.tgw,
-    aws_ram_sharing_with_organization.main
+    aws_ram_principal_association.dev
   ]
   create_duration = "120s"
 }
@@ -130,4 +133,31 @@ module "security_groups_hub" {
   environment       = var.environment
   project_name      = "tl"
   allowed_ssh_cidrs = var.allowed_ssh_cidrs
+}
+
+module "bastion" {
+  source = "../../modules/ec2"
+
+  ami_id              = var.ami_id
+  instance_type       = "t3.micro"
+  subnet_id           = module.hub_vpc.public_subnet_ids[0]
+  security_group_ids  = [module.security_groups_hub.bastion_sg_id]
+  key_name            = "tl-bastion-kp"
+  associate_public_ip = true
+  environment         = var.environment
+  project_name        = "tl"
+  name                = "bastion"
+  vpc_id              = module.hub_vpc.vpc_id
+}
+
+resource "aws_route" "hub_to_dev_spoke" {
+  route_table_id         = module.hub_vpc.private_route_table_id
+  destination_cidr_block = "10.1.0.0/16"
+  transit_gateway_id     = module.transit_gateway.transit_gateway_id
+}
+
+resource "aws_route" "hub_public_to_dev_spoke" {
+  route_table_id         = module.hub_vpc.public_route_table_id
+  destination_cidr_block = "10.1.0.0/16"
+  transit_gateway_id     = module.transit_gateway.transit_gateway_id
 }

@@ -68,6 +68,8 @@ resource "aws_organizations_account" "dev" {
   }
 }
 
+
+
 module "hub_vpc" {
   source = "../../modules/vpc-hub"
 

@@ -7,3 +7,13 @@ output "tgw_ram_share_arn" {
   description = "ARN of the TGW RAM resource share"
   value       = aws_ram_resource_share.tgw.arn
 }
+
+output "bastion_sg_id" {
+  description = "ID of the bastion host security group"
+  value       = module.security_groups_hub.bastion_sg_id
+}
+
+output "ram_ready" {
+  description = "Signals RAM propagation is complete"
+  value       = time_sleep.wait_for_ram.id
+}

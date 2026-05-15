@@ -44,10 +44,20 @@ data "terraform_remote_state" "management" {
   }
 }
 
+module "security_groups_dev" {
+  source = "../../modules/security-groups-dev"
+
+  vpc_id       = module.vpc.vpc_id
+  environment  = var.environment
+  project_name = "tl"
+}
+
 resource "aws_ec2_transit_gateway_vpc_attachment" "dev_spoke" {
   transit_gateway_id = data.terraform_remote_state.management.outputs.transit_gateway_id
   vpc_id             = module.vpc.vpc_id
   subnet_ids         = module.vpc.private_subnet_ids
+
+  depends_on = [module.vpc]
 
   tags = {
     Name        = "tl-dev-tgw-spoke-attachment"
@@ -62,4 +72,8 @@ resource "aws_route" "to_tgw" {
   transit_gateway_id     = data.terraform_remote_state.management.outputs.transit_gateway_id
 
   depends_on = [aws_ec2_transit_gateway_vpc_attachment.dev_spoke]
+}
+
+output "tgw_id_from_state" {
+  value = data.terraform_remote_state.management.outputs.transit_gateway_id
 }

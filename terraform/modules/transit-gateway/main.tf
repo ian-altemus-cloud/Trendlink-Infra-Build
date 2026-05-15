@@ -1,5 +1,6 @@
 resource "aws_ec2_transit_gateway" "main" {
   description = "TrendLink Transit Gateway"
+  auto_accept_shared_attachments  = "enable"
 
   tags = {
     Name        = "tl-${var.environment}-tgw"

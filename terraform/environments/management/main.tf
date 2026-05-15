@@ -30,6 +30,8 @@ provider "aws" {
   }
 }
 
+data "aws_organizations_organization" "org" {}
+
 resource "aws_organizations_organization" "tl_org" {
   aws_service_access_principals = [
     "cloudtrail.amazonaws.com",
@@ -93,6 +95,8 @@ module "transit_gateway" {
   hub_subnet_ids = module.hub_vpc.private_subnet_ids
 }
 
+resource "aws_ram_sharing_with_organization" "main" {}
+
 resource "aws_ram_resource_share" "tgw" {
   name                      = "tl-tgw-share"
   allow_external_principals = false
@@ -105,23 +109,23 @@ resource "aws_ram_resource_share" "tgw" {
 }
 
 resource "aws_ram_resource_association" "tgw" {
-  resource_arn       = "arn:aws:ec2:us-east-1:387041334143:transit-gateway/${module.transit_gateway.transit_gateway_id}"
   resource_share_arn = aws_ram_resource_share.tgw.arn
+  resource_arn       = module.transit_gateway.transit_gateway_arn
 }
 
-resource "aws_ram_principal_association" "dev" {
-  principal          = "307217365914"
-  resource_share_arn = aws_ram_resource_share.tgw.arn
+resource "time_sleep" "wait_for_ram" {
+  depends_on = [
+    aws_ram_resource_association.tgw,
+    aws_ram_sharing_with_organization.main
+  ]
+  create_duration = "120s"
 }
 
-resource "aws_ram_sharing_with_organization" "main" {}
+module "security_groups_hub" {
+  source = "../../modules/security-groups-hub"
 
-resource "aws_ec2_transit_gateway_vpc_attachment_accepter" "dev_spoke" {
-  transit_gateway_attachment_id = data.terraform_remote_state.dev.outputs.dev_spoke_attachment_id
-
-  tags = {
-    Name        = "tl-dev-tgw-spoke-attachment-accepter"
-    Environment = var.environment
-    ManagedBy   = "terraform"
-  }
+  vpc_id            = module.hub_vpc.vpc_id
+  environment       = var.environment
+  project_name      = "tl"
+  allowed_ssh_cidrs = var.allowed_ssh_cidrs
 }

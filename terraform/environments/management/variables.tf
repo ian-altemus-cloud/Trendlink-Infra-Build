@@ -34,3 +34,8 @@ variable "availability_zones" {
   description = "Availability zones to deploy into"
   type        = list(string)
 }
+
+variable "allowed_ssh_cidrs" {
+  description = "CIDR blocks allowed to SSH into the bastion"
+  type        = list(string)
+}

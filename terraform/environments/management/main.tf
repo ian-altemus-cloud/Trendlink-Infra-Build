@@ -78,6 +78,7 @@ module "hub_vpc" {
   public_subnet_cidrs  = var.hub_public_subnet_cidrs
   private_subnet_cidrs = var.hub_private_subnet_cidrs
   availability_zones   = var.availability_zones
+  transit_gateway_id   = module.transit_gateway.transit_gateway_id
 }
 
 data "terraform_remote_state" "dev" {
@@ -99,7 +100,7 @@ module "transit_gateway" {
 
 resource "aws_ram_resource_share" "tgw" {
   name                      = "tl-tgw-share"
-  allow_external_principals = false
+  allow_external_principals = true
 
   tags = {
     Name        = "tl-tgw-share"
@@ -116,14 +117,6 @@ resource "aws_ram_resource_association" "tgw" {
 resource "aws_ram_principal_association" "dev" {
   principal          = "307217365914"
   resource_share_arn = aws_ram_resource_share.tgw.arn
-}
-
-resource "time_sleep" "wait_for_ram" {
-  depends_on = [
-    aws_ram_resource_association.tgw,
-    aws_ram_principal_association.dev
-  ]
-  create_duration = "120s"
 }
 
 module "security_groups_hub" {
@@ -150,14 +143,8 @@ module "bastion" {
   vpc_id              = module.hub_vpc.vpc_id
 }
 
-resource "aws_route" "hub_to_dev_spoke" {
-  route_table_id         = module.hub_vpc.private_route_table_id
-  destination_cidr_block = "10.1.0.0/16"
-  transit_gateway_id     = module.transit_gateway.transit_gateway_id
-}
-
-resource "aws_route" "hub_public_to_dev_spoke" {
-  route_table_id         = module.hub_vpc.public_route_table_id
-  destination_cidr_block = "10.1.0.0/16"
-  transit_gateway_id     = module.transit_gateway.transit_gateway_id
+resource "aws_ec2_transit_gateway_route" "default_to_hub" {
+  destination_cidr_block         = "0.0.0.0/0"
+  transit_gateway_attachment_id  = module.transit_gateway.hub_attachment_id
+  transit_gateway_route_table_id = module.transit_gateway.tgw_route_table_id
 }

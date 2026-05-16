@@ -13,7 +13,3 @@ output "bastion_sg_id" {
   value       = module.security_groups_hub.bastion_sg_id
 }
 
-output "ram_ready" {
-  description = "Signals RAM propagation is complete"
-  value       = time_sleep.wait_for_ram.id
-}

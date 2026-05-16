@@ -23,3 +23,7 @@ variable "availability_zones" {
   type        = list(string)
 }
 
+variable "transit_gateway_id" {
+  description = "ID of the Transit Gateway for hub to spoke routing"
+  type        = string
+}

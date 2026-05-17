@@ -25,7 +25,7 @@ provider "aws" {
   alias  = "dev"
   region = var.aws_region
 
-  assume_role {
+   assume_role {
     role_arn = "arn:aws:iam::307217365914:role/OrganizationAccountAccessRole"
   }
 }
@@ -259,7 +259,10 @@ resource "aws_s3_bucket_policy" "mgmt_tfstate_github" {
       {
         Effect = "Allow"
         Principal = {
-          AWS = aws_iam_role.github_actions_terraform.arn
+          AWS = [
+            aws_iam_role.github_actions_terraform.arn,
+            "arn:aws:iam::307217365914:role/tl-github-actions-terraform"
+          ]
         }
         Action = [
           "s3:GetObject",

@@ -92,3 +92,18 @@ module "minikube" {
   name                = "minikube"
   vpc_id              = module.vpc.vpc_id
 }
+
+resource "aws_ecr_repository" "app" {
+  name                 = "trendlink-app"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  tags = {
+    Name        = "trendlink-app"
+    Environment = var.environment
+    ManagedBy   = "terraform"
+  }
+}

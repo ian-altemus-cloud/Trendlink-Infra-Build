@@ -17,3 +17,8 @@ output "dev_spoke_attachment_id" {
   description = "ID of the dev spoke TGW attachment"
   value       = aws_ec2_transit_gateway_vpc_attachment.dev_spoke.id
 }
+
+output "ecr_repository_url" {
+  description = "URL of the ECR repository"
+  value       = aws_ecr_repository.app.repository_url
+}

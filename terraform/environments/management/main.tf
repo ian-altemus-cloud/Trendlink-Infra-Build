@@ -163,3 +163,5 @@ resource "aws_eip_association" "bastion" {
   instance_id   = module.bastion.instance_id
   allocation_id = aws_eip.bastion.id
 }
+
+

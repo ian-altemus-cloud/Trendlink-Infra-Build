@@ -249,3 +249,30 @@ resource "aws_s3_bucket_policy" "dev_tfstate_github" {
     ]
   })
 }
+
+resource "aws_s3_bucket_policy" "mgmt_tfstate_github" {
+  bucket = "tl-tfstate-mgmt-387041334143"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          AWS = aws_iam_role.github_actions_terraform.arn
+        }
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket",
+          "s3:GetBucketLocation"
+        ]
+        Resource = [
+          "arn:aws:s3:::tl-tfstate-mgmt-387041334143",
+          "arn:aws:s3:::tl-tfstate-mgmt-387041334143/*"
+        ]
+      }
+    ]
+  })
+}

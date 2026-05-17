@@ -19,7 +19,6 @@ terraform {
 
 provider "aws" {
   region  = var.aws_region
-  profile = "tl-mgmt"
 
   assume_role {
     role_arn = "arn:aws:iam::307217365914:role/OrganizationAccountAccessRole"

@@ -107,3 +107,77 @@ resource "aws_ecr_repository" "app" {
     ManagedBy   = "terraform"
   }
 }
+
+resource "aws_iam_openid_connect_provider" "github" {
+  url = "https://token.actions.githubusercontent.com"
+
+  client_id_list = [
+    "sts.amazonaws.com"
+  ]
+
+  thumbprint_list = [
+    "6938fd4d98bab03faadb97b34396831e3780aea1"
+  ]
+}
+
+resource "aws_iam_role" "github_actions_ecr" {
+  name = "tl-github-actions-ecr"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.github.arn
+        }
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" = "repo:ian-altemus-cloud/trendlink-app:*"
+          }
+          StringEquals = {
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          }
+        }
+      }
+    ]
+  })
+
+  tags = {
+    Name        = "tl-github-actions-ecr"
+    Environment = var.environment
+    ManagedBy   = "terraform"
+  }
+}
+
+resource "aws_iam_role_policy" "github_actions_ecr" {
+  name = "tl-ecr-push-policy"
+  role = aws_iam_role.github_actions_ecr.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:PutImage",
+          "ecr:InitiateLayerUpload",
+          "ecr:UploadLayerPart",
+          "ecr:CompleteLayerUpload"
+        ]
+        Resource = aws_ecr_repository.app.arn
+      }
+    ]
+  })
+}

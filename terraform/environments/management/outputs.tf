@@ -13,3 +13,7 @@ output "bastion_sg_id" {
   value       = module.security_groups_hub.bastion_sg_id
 }
 
+output "bastion_eip" {
+  description = "Elastic IP address of the bastion host"
+  value       = aws_eip.bastion.public_ip
+}

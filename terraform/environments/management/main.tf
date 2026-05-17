@@ -148,3 +148,18 @@ resource "aws_ec2_transit_gateway_route" "default_to_hub" {
   transit_gateway_attachment_id  = module.transit_gateway.hub_attachment_id
   transit_gateway_route_table_id = module.transit_gateway.tgw_route_table_id
 }
+
+resource "aws_eip" "bastion" {
+  domain = "vpc"
+
+  tags = {
+    Name        = "tl-bastion-eip"
+    Environment = var.environment
+    ManagedBy   = "terraform"
+  }
+}
+
+resource "aws_eip_association" "bastion" {
+  instance_id   = module.bastion.instance_id
+  allocation_id = aws_eip.bastion.id
+}

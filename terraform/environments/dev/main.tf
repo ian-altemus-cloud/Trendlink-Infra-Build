@@ -242,3 +242,15 @@ resource "aws_dynamodb_table" "tfstate_lock" {
     ManagedBy   = "terraform"
   }
 }
+
+module "eks" {
+  source = "../../modules/eks"
+
+  environment        = var.environment
+  subnet_ids         = module.vpc.private_subnet_ids
+  kubernetes_version = var.eks_kubernetes_version
+  node_instance_type = var.eks_node_instance_type
+  desired_nodes      = var.eks_desired_nodes
+  min_nodes          = var.eks_min_nodes
+  max_nodes          = var.eks_max_nodes
+}

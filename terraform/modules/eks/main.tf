@@ -86,6 +86,7 @@ resource "aws_eks_node_group" "main" {
   node_group_name = "tl-${var.environment}-ng"
   node_role_arn   = aws_iam_role.node_group.arn
   subnet_ids      = var.subnet_ids
+  capacity_type = "SPOT"
   instance_types  = [var.node_instance_type]
 
   scaling_config {

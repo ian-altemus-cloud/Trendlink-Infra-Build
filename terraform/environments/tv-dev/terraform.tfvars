@@ -9,4 +9,4 @@ eks_kubernetes_version = "1.31"
 eks_node_instance_type = "t3.medium"
 eks_desired_nodes      = 2
 eks_min_nodes          = 1
-eks_max_nodes          = 3
+eks_max_nodes          = 3# trigger

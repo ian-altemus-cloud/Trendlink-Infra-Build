@@ -16,8 +16,6 @@ env:
   AWS_REGION: us-east-1
 
 jobs:
-  terraform-tv-dev:
-    name: Terraform TrendView Dev
 
   terraform-tv-dev:
     name: Terraform TrendView Dev

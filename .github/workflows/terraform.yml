@@ -75,7 +75,7 @@ jobs:
         working-directory: .
         run: |
           aws eks update-kubeconfig \
-            --name tv-dev-eks \
+            --name tl-tv-dev-eks \
             --region us-east-1
 
       - name: Install ArgoCD

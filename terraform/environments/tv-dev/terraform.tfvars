@@ -10,3 +10,4 @@ eks_node_instance_type = "m7i-flex.large"
 eks_desired_nodes      = 2
 eks_min_nodes          = 1
 eks_max_nodes          = 3# trigger
+# trigger
